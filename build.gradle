@@ -20,6 +20,9 @@ if (System.getenv("CI") != null) {
 }
 
 version = version + "+" + project.minecraft_version
+if (project.hasProperty("build_metadata") && project.build_metadata) {
+	version = version + "." + project.build_metadata
+}
 
 loom {
 	runs {

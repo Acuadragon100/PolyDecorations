@@ -1,6 +1,7 @@
 package eu.pb4.polydecorations.util;
 
 import com.mojang.authlib.GameProfile;
+import eu.pb4.polydecorations.DecorationsFeature;
 import eu.pb4.polydecorations.ModInit;
 import eu.pb4.polymer.blocks.api.BlockModelType;
 import eu.pb4.polymer.blocks.api.PolymerBlockResourceUtils;
@@ -48,19 +49,24 @@ public class DecorationsUtil {
 
     private static final List<Runnable> RUN_NEXT_TICK = new ArrayList<>();
 
-    public static final Map<Direction, BlockState> TRAPDOOR_STATES_REGULAR = Util.makeEnumMap(Direction.class, x -> PolymerBlockResourceUtils.requestEmpty(BlockModelType.valueOf("TRAPDOOR_" + switch (x) {
+    // Polymer block states are limited, so they are only requested if a feature using them is enabled
+    public static final Map<Direction, BlockState> TRAPDOOR_STATES_REGULAR = DecorationsFeature.anyEnabled(DecorationsFeature.TOOL_RACK, DecorationsFeature.SLEEPING_BAG)
+            ? Util.makeEnumMap(Direction.class, x -> PolymerBlockResourceUtils.requestEmpty(BlockModelType.valueOf("TRAPDOOR_" + switch (x) {
         case UP -> "BOTTOM";
         case DOWN -> "TOP";
         default -> x.getSerializedName().toUpperCase(Locale.ROOT);
-    })));
-    public static final Map<Direction, BlockState> TRAPDOOR_STATES_WATERLOGGED = Util.makeEnumMap(Direction.class, x -> PolymerBlockResourceUtils.requestEmpty(BlockModelType.valueOf("TRAPDOOR_" + switch (x) {
+    }))) : Map.of();
+    public static final Map<Direction, BlockState> TRAPDOOR_STATES_WATERLOGGED = DecorationsFeature.TOOL_RACK.isEnabled()
+            ? Util.makeEnumMap(Direction.class, x -> PolymerBlockResourceUtils.requestEmpty(BlockModelType.valueOf("TRAPDOOR_" + switch (x) {
         case UP -> "BOTTOM";
         case DOWN -> "TOP";
         default -> x.getSerializedName().toUpperCase(Locale.ROOT);
-    } + "_WATERLOGGED")));
+    } + "_WATERLOGGED"))) : Map.of();
 
-    public static final BlockState CAMPFIRE_STATE = PolymerBlockResourceUtils.requestEmpty(BlockModelType.CAMPFIRE);
-    public static final BlockState CAMPFIRE_WATERLOGGED_STATE = PolymerBlockResourceUtils.requestEmpty(BlockModelType.CAMPFIRE_WATERLOGGED);
+    public static final BlockState CAMPFIRE_STATE = DecorationsFeature.anyEnabled(DecorationsFeature.BENCH, DecorationsFeature.BASKET, DecorationsFeature.COPPER_CAMPFIRE, DecorationsFeature.FLOWER_POTS)
+            ? PolymerBlockResourceUtils.requestEmpty(BlockModelType.CAMPFIRE) : null;
+    public static final BlockState CAMPFIRE_WATERLOGGED_STATE = DecorationsFeature.anyEnabled(DecorationsFeature.BENCH, DecorationsFeature.BASKET, DecorationsFeature.COPPER_CAMPFIRE)
+            ? PolymerBlockResourceUtils.requestEmpty(BlockModelType.CAMPFIRE_WATERLOGGED) : null;
 
     public static void runNextTick(Runnable runnable) {
         RUN_NEXT_TICK.add(runnable);

@@ -286,7 +286,11 @@ public class SignPostBlockEntity extends BlockEntity implements BlockEntityExtra
             this.setLine(2, txt);
             this.setLine(3, txt);
             this.setSignType(Blocks.BIRCH_SIGN);
-            this.open();
+            player.level().getServer().schedule(
+                    player.level().getServer().wrapRunnable(
+		                    this::open
+                    )
+            );
         }
 
         @Override
